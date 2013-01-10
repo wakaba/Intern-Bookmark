@@ -4,3 +4,12 @@
 [submodule "modules/Ridge"]
 	path = modules/Ridge
 	url = https://github.com/hatena/Ridge.git
+[submodule "modules/dongry"]
+	path = modules/dongry
+	url = git://github.com/wakaba/dongry
+[submodule "modules/rdb-utils"]
+	path = modules/rdb-utils
+	url = git://github.com/wakaba/perl-rdb-utils
+[submodule "modules/ooutils"]
+	path = modules/ooutils
+	url = git://github.com/wakaba/perl-ooutils

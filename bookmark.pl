@@ -3,9 +3,12 @@ use strict;
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/lib", glob "$FindBin::Bin/modules/*/lib";
-use Intern::Bookmark::MoCo;
+use Intern::Bookmark::MySQL;
+use Intern::Bookmark::Record::User;
 use Pod::Usage; # for pod2usage()
 use Encode::Locale;
+
+Intern::Bookmark::MySQL->init_by_dsn('dbi:mysql:dbname=intern_bookmark;user=root;password=');
 
 binmode STDOUT, ':encoding(console_out)';
 
@@ -17,7 +20,7 @@ my %HANDLERS = (
 
 my $command = shift @ARGV || 'list';
 
-my $user = moco('User')->find(name => $ENV{USER}) || moco('User')->create(name => $ENV{USER});
+my $user = Intern::Bookmark::Record::User->new_from_name($ENV{USER} // 'nobody');
 my $handler = $HANDLERS{ $command } or pod2usage;
 
 $handler->($user, @ARGV);
@@ -52,7 +55,8 @@ sub delete_bookmark {
 
     die 'entry_id required' unless defined $entry_id;
 
-    my $entry = moco('Entry')->find(id => $entry_id) or die "entry id=$entry_id not found";
+    my $entry = Intern::Bookmark::Record::Entry->find_by_id($entry_id)
+        or die "entry id=$entry_id not found";
     my $bookmark = $user->delete_bookmark($entry);
     if ($bookmark) {
         print 'deleted ', $bookmark->as_string, "\n";
