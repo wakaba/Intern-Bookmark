@@ -66,7 +66,7 @@ sub bookmarks {
     my $self = shift;
     return $self->db->table('bookmark')->find_all(
         {entry_id => $self->id},
-        order => [created_on => 'DESC']
+        order => [created => 'DESC']
     )->map(sub {
         return Intern::Bookmark::Record::Bookmark->new_from_row($_);
     });

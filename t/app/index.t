@@ -2,9 +2,8 @@
 use strict;
 use warnings;
 use Test::More qw/no_plan/;
-use HTTP::Status;
 use Ridge::Test 'Intern::Bookmark';
 
-is get('/index')->code, RC_OK;
+is get('/index')->code, 200;
 
 1;

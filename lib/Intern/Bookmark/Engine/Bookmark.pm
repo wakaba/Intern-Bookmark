@@ -2,12 +2,12 @@ package Intern::Bookmark::Engine::Bookmark;
 use strict;
 use warnings;
 use Intern::Bookmark::Engine -Base;
-use Intern::Bookmark::MoCo;
+use Intern::Bookmark::Record::Entry;
 
 sub default : Public {
     my ($self, $r) = @_;
     my $id = $r->req->param('id');
-    my $entry = moco("Entry")->find(id => $id);
+    my $entry = Intern::Bookmark::Record::Entry->find_by_id($id);
     my $bookmarks = $entry->bookmarks;
 
     $r->stash->param(
@@ -20,7 +20,7 @@ sub add : Public {
     my ($self, $r) = @_;
 
     my $id = $r->req->param('id');
-    my $entry = $id ? moco("Entry")->find(id => $id) : undef;
+    my $entry = $id ? Intern::Bookmark::Record::Entry->find_by_id($id) : undef;
     my $bookmark = $entry ? $r->user->bookmark_on_entry($entry) : undef;
 
     $r->stash->param(
@@ -51,7 +51,7 @@ sub delete : Public {
     my ($self, $r) = @_;
 
     my $id = $r->req->param('id');
-    my $entry = $id ? moco("Entry")->find(id => $id) : undef;
+    my $entry = $id ? Intern::Bookmark::Record::Entry->find_by_id($id) : undef;
     my $bookmark = $entry ? $r->user->bookmark_on_entry($entry) : undef;
 
     $r->stash->param(

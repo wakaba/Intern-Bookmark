@@ -9,7 +9,7 @@
         </header>
         <p>[% bookmark.comment | html %]</p>
         <footer>
-            [% bookmark.created_on.strftime('%Y-%m-%d') | html %]
+            [% bookmark.created.strftime('%Y-%m-%d') | html %]
             <a href="/bookmark.add?id=[% entry.id | html %]">編集</a>
             <a href="/bookmark.delete?id=[% entry.id | html %]">削除</a>
         </footer>

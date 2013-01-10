@@ -2,7 +2,6 @@ package Intern::Bookmark::Engine::Index;
 use strict;
 use warnings;
 use Intern::Bookmark::Engine -Base;
-use Intern::Bookmark::MoCo;
 
 sub default : Public {
     my ($self, $r) = @_;

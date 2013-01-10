@@ -36,4 +36,7 @@ sub uri_filter {
     $uri;
 }
 
+use Intern::Bookmark::MySQL;
+Intern::Bookmark::MySQL->init_by_dsn('dbi:mysql:dbname=intern_bookmark;user=root;password=');
+
 1;
