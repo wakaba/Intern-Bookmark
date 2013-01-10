@@ -1,3 +1,5 @@
+HTTP::Server::Simple::PSGI
+JSON::XS
 Plack::Builder
 Plack::Middleware
 Plack::Request

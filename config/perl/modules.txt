@@ -1,9 +1,4 @@
 Carp
 DateTime
-DateTime::Format::MySQL
-Exporter::Lite
-HTTP::Status
-JSON::XS
 LWP::UserAgent
 Path::Class
-UNIVERSAL::require

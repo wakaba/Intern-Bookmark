@@ -1,2 +1,3 @@
 Test::Class
 Test::More
+UNIVERSAL::require
