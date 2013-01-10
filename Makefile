@@ -38,6 +38,7 @@ PROVE = ./prove
 test: test-deps test-main
 
 test-deps: deps
+	sh t/setup-db.sh
 
 test-main:
 	$(PROVE) t/*.t t/app/*.t
