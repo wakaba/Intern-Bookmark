@@ -62,6 +62,10 @@ sub title {
     return $_[0]->{row}->get('title');
 }
 
+sub updated {
+    return $_[0]->{row}->get('updated');
+}
+
 sub bookmarks {
     my $self = shift;
     return $self->db->table('bookmark')->find_all(
