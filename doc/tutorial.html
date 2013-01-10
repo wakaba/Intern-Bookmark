@@ -1,0 +1,1740 @@
+<p>データベース操作しましょう。<br />
+[:presentation]</p>
+
+<div class="section">
+    <h3>今日は何をしますか</h3>
+    
+<ul>
+<li>データベース、データベース操作モジュールの役割を理解する.</li>
+<li>Dongry を使えるようになる</li>
+<li>次回以降の Web アプリのための下地づくり</li>
+</ul>
+</div>
+<div class="section">
+    <h3>カリキュラムについて</h3>
+    
+<ul>
+<li>Perl & OOP</li>
+<li><strong>データベース操作 ← いまここ</strong>
+<ul>
+<li>データベース</li>
+</ul></li>
+<li>WAF によるウェブアプリケーション開発
+<ul>
+<li>Ridge / Web アプリケーション (サーバー側)</li>
+</ul></li>
+<li>JavaScript で学ぶイベントドリブン
+<ul>
+<li>JavaScript / Web アプリケーション (クライアント側)</li>
+</ul></li>
+<li>Webサービス企画・設計ワークショップ</li>
+</ul>
+</div>
+<div class="section">
+    <h3>今日の講義</h3>
+    
+<div class="section">
+    <h4>課題</h4>
+    
+<ul>
+<li>Dongry を用いて、コマンドラインインターフェースで日記を書けるツールを作成してもらいます</li>
+</ul>
+</div>
+<div class="section">
+    <h4>構成</h4>
+    
+<ul>
+<li>基本編
+<ul>
+<li>データベースの必要性</li>
+<li>データベース操作モジュールの基本的な概念や使い方を紹介します</li>
+</ul></li>
+<li>休憩</li>
+<li>実践編
+<ul>
+<li>Dongry を使った簡単なブックマーク管理ツールの作り方をなぞります</li>
+</ul></li>
+<li>課題の解説</li>
+<li>補足編
+<ul>
+<li>講義の時間では説明しきれなかったことなど.</li>
+</ul></li>
+</ul>
+<ul>
+<li>駆け足で進みますのでがんばってついてきてください</li>
+<li>質問があれば途中でもどんどん聞いてください</li>
+</ul>
+</div>
+</div>
+<div class="section">
+    <h3>Webアプリケーションが扱うデータ(1)</h3>
+    
+<ul>
+<li>例えばブックマークサービスの機能
+<ul>
+<li>あるURLをブックマークする</li>
+<li>自分のブックマークを閲覧</li>
+<li>あるURLをブックマークした人を閲覧</li>
+</ul></li>
+</ul>
+<table>
+    <tr>
+    <th>name</th>
+    <th>url</th>
+    <th>created</th>
+    </tr>
+    <tr>
+    <td>mechairoi </td>
+    <td> <a href="http://www.hatena.com/">http://www.hatena.com/</a> </td>
+    <td> 2011/08/19</td>
+    </tr>
+    <tr>
+    <td>yanbe </td>
+    <td> <a href="http://www.google.com/">http://www.google.com/</a> </td>
+    <td> 2011/08/20</td>
+    </tr>
+    <tr>
+    <td>hitode909 </td>
+    <td> <a href="http://www.google.com/">http://www.google.com/</a> </td>
+    <td> 2011/08/21</td>
+    </tr>
+</table>
+</div>
+<div class="section">
+    <h3>Webアプリケーションが扱うデータ(2)</h3>
+    
+<ul>
+<li>ユーザ情報・何らかの投稿・後から集計したデータなど</li>
+<li>耐障害性/冗長化
+<ul>
+<li>マシンが壊れてもWebサービスのデータは消えてはいけない.</li>
+</ul></li>
+<li>スケーラビリティ
+<ul>
+<li>サービスは成長しデータは増え続ける</li>
+<li>大量のデータから効率よく取得する必要がある.</li>
+</ul></li>
+</ul>
+<ul>
+<li>メモリ (Perlの変数)ではだめ.
+<ul>
+<li>アプリケーションの複数のインスタンスはメモリを共有できない</li>
+</ul></li>
+<li>データの永続化が必要です</li>
+</ul>
+</div>
+<div class="section">
+    <h3>ファイルだと</h3>
+    <p>1行に1ブックマーク</p>
+<pre class="code">mechairoi&lt;&gt;http://www.hatena.com/&lt;&gt;2011/08/19 06:19:10.13
+yanbe&lt;&gt;http://www.google.com/&lt;&gt;2011/08/19 06:19:10.13
+...</pre>
+<ul>
+<li>検索</li>
+<li>冗長化
+<ul>
+<li>ファイルを複数のマシンに配置？</li>
+</ul></li>
+<li>ファイルロック</li>
+</ul><p>いろいろ面倒</p>
+
+</div>
+<div class="section">
+    <h3>そのための データベース です</h3>
+    
+<ul>
+<li>検索/取得のために効率のよいデータの保管</li>
+<li>複数のノードにデータを持って耐障害性/スケーラビリティを確保</li>
+<li>高い信頼性</li>
+</ul>
+<div class="section">
+    <h4>一般的なWebサービスの構成</h4>
+    <p><a href="http://f.hatena.ne.jp/mechairoi/20120813084003" class="hatena-fotolife"><img src="http://cdn-ak.f.st-hatena.com/images/fotolife/m/mechairoi/20120813/20120813084003.png" alt="f:id:mechairoi:20120813084003p:image" title="f:id:mechairoi:20120813084003p:image" class="hatena-fotolife"></a></p>
+
+</div>
+</div>
+<div class="section">
+    <h3>使ったことありますか?</h3>
+    
+<ul>
+<li>関係 (リレーショナル) データベース / SQL</li>
+<li>OR マッパー</li>
+<li>DBI</li>
+</ul>
+</div>
+<div class="section">
+    <h3>関係データベースとは？</h3>
+    
+<ul>
+<li>関係モデルに基づくデータベース</li>
+</ul>
+<div class="section">
+    <h4>関係モデル</h4>
+    
+<ul>
+<li>関係は属性と組 (タプル) の集合で表される</li>
+<li>関係代数に基づき演算が定義される</li>
+</ul><pre class="code">R: (ID, 名前, 誕生日) = {
+   (1, 初音ミク, 2007-08-31),
+   (2, 鏡音リン, 2007-12-27),
+   (3, 鏡音レン, 2007-12-27),
+   (4, 巡音ルカ, 2009-01-30)
+}</pre>
+</div>
+</div>
+<div class="section">
+    <h3>関係データベース</h3>
+    
+<ul>
+<li>データベースに複数のテーブルが属する</li>
+<li>データは表(テーブル)で表される
+<ul>
+<li>表 = 関係、カラム = 属性、行 (レコード) = タプル</li>
+</ul></li>
+</ul><p>例) artist テーブル:</p>
+
+<table>
+    <tr>
+    <th>id</th>
+    <th>name</th>
+    <th>birthday</th>
+    </tr>
+    <tr>
+    <td>1</td>
+    <td>初音ミク</td>
+    <td>2007-08-31</td>
+    </tr>
+    <tr>
+    <td>2</td>
+    <td>鏡音リン</td>
+    <td>2007-12-27</td>
+    </tr>
+    <tr>
+    <td>3</td>
+    <td>鏡音レン</td>
+    <td>2007-12-27</td>
+    </tr>
+    <tr>
+    <td>4</td>
+    <td>巡音ルカ</td>
+    <td>2009-01-30</td>
+    </tr>
+</table><p>album テーブル:</p>
+
+<table>
+    <tr>
+    <th>id</th>
+    <th>artist_id</th>
+    <th>name</th>
+    <th>released_on</th>
+    </tr>
+    <tr>
+    <td>1</td>
+    <td>1</td>
+    <td>みくのかんづめ</td>
+    <td>2008-12-3</td>
+    </tr>
+</table>
+<div class="section">
+    <h4>SQL</h4>
+    
+<ul>
+<li>SQL という言語により表のデータの問い合わせ、更新などを行う</li>
+</ul><pre class="code">SELECT birthday FROM artist WHERE name = &#39;初音ミク&#39;;
+SELECT * FROM artist WHERE birthday &lt; &#39;2009-01-01&#39; ORDER BY birthday DESC;</pre><pre class="code">INSERT INTO artist (id, name, birthday) VALUES (5, &#39;重音テト&#39;, &#39;2008-04-01&#39;);</pre><pre class="code">UPDATE artist SET birthday = &#39;2008-07-18&#39; WHERE name LIKE &#39;鏡音%&#39;;</pre>
+</div>
+<div class="section">
+    <h4>キー (インデックス)</h4>
+    
+<ul>
+<li>カラムの組み合わせについてインデックス (索引) を作成することができる</li>
+</ul>
+<ul>
+<li>普通のインデックス
+<ul>
+<li>そのカラムについてソートしたい時に</li>
+</ul></li>
+<li>プライマリキー (主キー)
+<ul>
+<li>テーブル内で一意なキー</li>
+<li>まず変わらない値を設定</li>
+</ul></li>
+<li>ユニークキー
+<ul>
+<li>テーブル内で一意なキー (の組み合わせ)</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div class="section">
+    <h3>RDBMS</h3>
+    
+<ul>
+<li>Relational DataBase Management System</li>
+<li>関係データベースの実装
+<ul>
+<li>いろいろ面倒を見てくれる
+<ul>
+<li>ファイルの配置、ロック</li>
+<li>SQL の解釈</li>
+<li>レプリケーション ( 複数ノードでの運用 )</li>
+<li>トランザクション</li>
+</ul></li>
+</ul></li>
+<li>はてなでは MySQL を採用</li>
+</ul>
+<div class="section">
+    <h4>前提本</h4>
+    <p><img src="http://cdn-ak.f.st-hatena.com/images/fotolife/m/motemen/20110815/20110815211306.jpg"></p><p></p>
+
+</div>
+</div>
+<div class="section">
+    <h3>Perl から RDB を使う: DBI</h3>
+    
+<ul>
+<li>Perl からデータベースに接続するモジュール
+<ul>
+<li>OR マッパーではない</li>
+</ul></li>
+<li>[cpan:DBI]
+<ul>
+<li>(DBD::*) MySQL、PostgreSQL、SQLite、…</li>
+</ul></li>
+</ul>
+</div>
+<div class="section">
+    <h3>DBI を用いる</h3>
+    <pre class="code">use DBI;
+use DateTime::Format::MySQL;
+
+# MySQLに接続
+my $dbh = DBI-&gt;connect(&#39;dbi:mysql:dbname=vocaloid&#39;, &#39;root&#39;, &#39;&#39;) or die $DBI::errstr;
+# SQL発行
+my $artists = $dbh-&gt;selectall_arrayref(&#39;SELECT * FROM artist WHERE birthday &lt; ? ORDER BY birthday ASC&#39;, { Slice =&gt; {} }, &#39;2008-01-01&#39;);
+
+# [
+#   {
+#     &#39;id&#39; =&gt; &#39;1&#39;,
+#     &#39;name&#39; =&gt; &#39;初音ミク&#39;,
+#     &#39;birthday&#39; =&gt; &#39;2007-08-31&#39;
+#   },
+#   {
+#     &#39;id&#39; =&gt; &#39;2&#39;,
+#     &#39;name&#39; =&gt; &#39;鏡音リン&#39;,
+#     &#39;birthday&#39; =&gt; &#39;2007-12-27&#39;
+#   },
+#   {
+#     &#39;id&#39; =&gt; &#39;3&#39;,
+#     &#39;name&#39; =&gt; &#39;鏡音レン&#39;,
+#     &#39;birthday&#39; =&gt; &#39;2007-12-27&#39;
+#   }
+# ]
+
+my $artist = $artists-&gt;[0];
+$artist-&gt;{name}; # &#39;初音ミク&#39;
+DateTime::Format::MySQL-&gt;parse_date($artist-&gt;{birthday})-&gt;strftime(&#39;%x&#39;); # &#39;Aug 31, 2007&#39;</pre>
+<ul>
+<li>DB とのコネクションを自分で管理</li>
+<li>SQL を直に書かなきゃいけない</li>
+<li>結果がただのハッシュ</li>
+<li>面倒</li>
+<li>癖のある API (名前が似た沢山のメソッド、...)</li>
+</ul>
+</div>
+<div class="section">
+    <h3>OR マッパーの登場です</h3>
+    
+<ul>
+<li>ORM: <strong>O</strong>bject-<strong>R</strong>elational <strong>mapping</strong> (オブジェクト関係マッピング)
+<ul>
+<li>Relational: 関係 { (1, 初音ミク, 2007-08-31) }</li>
+<li>Object: オブジェクト指向でいうオブジェクト</li>
+</ul></li>
+</ul><pre class="code">[ bless { id =&gt; 1, name =&gt; &#34;初音ミク&#34;, birthday =&gt; &#34;2007-08-31&#34; }, &#34;Artist&#34; ];</pre>
+</div>
+<div class="section">
+    <h3>OR マッパーの基本的な機能</h3>
+    
+<ul>
+<li>DB に格納されているレコードとPerlオブジェクトとの変換</li>
+<li>接続情報の管理</li>
+<li>SQL の生成</li>
+</ul>
+</div>
+<div class="section">
+    <h3>OR マッパーを使った書き方 (DBIx::MoCo)</h3>
+    <pre class="code">use Vocaloid::MoCo::Artist; # artist テーブルに対応するクラス
+
+# SQL の自動生成
+my $artists = Vocaloid::MoCo::Artist-&gt;search(
+    where =&gt; {
+        birthday =&gt; { &#39;&lt;&#39; =&gt; &#39;2008-01-01&#39; },
+    },
+    order =&gt; &#39;birthday ASC&#39;,
+);
+
+# 得られた行はオブジェクト
+my $artist = $artists-&gt;first;
+# bless {
+#   &#39;id&#39; =&gt; &#39;1&#39;,
+#   &#39;name&#39; =&gt; &#39;初音ミク&#39;,
+#   &#39;birthday&#39; =&gt; &#39;2007-08-31&#39;
+# }, &#34;Vocaloid::MoCo::Artist&#34;
+
+# 行のカラムへのアクセス(書き換えも可)
+$artist-&gt;name; # &#39;初音ミク&#39;
+$artist-&gt;birthday-&gt;strftime(&#39;%x&#39;); # &#39;Aug 31, 2007&#39;
+
+# 意味的に関連する別のテーブルへのアクセスをメソッドとして定義できる
+my $albums = $artist-&gt;albums;</pre>
+<ul>
+<li>DB への接続、SQL の生成、オブジェクトへの変換などは OR マッパーが隠蔽してくれる</li>
+</ul>
+</div>
+<div class="section">
+    <h3>MoCo (もこ) とは?</h3>
+    
+<ul>
+<li>DBIx::MoCo</li>
+<li>はてなのサービスで使われている OR マッパー</li>
+<li>はてな社内で開発
+<ul>
+<li>jkondo (社長です) 作、現在は motemen がメンテナ</li>
+</ul></li>
+<li>はてなスター、はてなブックマーク、はてなハイク、うごメモはてな、はてなココ、…</li>
+</ul>
+</div>
+<div class="section">
+    <h3>MoCo の概要</h3>
+    
+<ul>
+<li>1 クラスが 1 テーブルに対応 (Active Record パターン)
+<ul>
+<li>1 インスタンス = テーブルの 1 行</li>
+<li>テーブルに対する操作 ↔ クラスメソッド
+<ul>
+<li><code>MoCo::Artist->search()</code></li>
+</ul></li>
+<li>レコードに対する操作 ↔ インスタンスメソッド
+<ul>
+<li><code>$artist->name()</code></li>
+</ul></li>
+</ul></li>
+</ul><!-- -->
+</div>
+<div class="section">
+    <h3>ORM の問題点</h3>
+    
+<ul>
+<li>オブジェクト生成のオーバーヘッド
+<ul>
+<li>Perl のオブジェクト生成 (bless) は結構コストが高い
+<ul>
+<li>モジュールによっては更に初期化のコストが (特に DateTime は重い)</li>
+</ul></li>
+<li>数千個のオブジェクトを生成するよりSQL 1 回で済ませた方がいいかも</li>
+</ul></li>
+<li>無駄なSQL
+<ul>
+<li>オブジェクト指向的に綺麗な書き方をしても、必ずしも良い SQL にはならない
+<ul>
+<li>むしろパフォーマンス悪化の要因にすらなる</li>
+<li>一度にまとめられる問い合わせがばらばらに発行されるとか</li>
+</ul></li>
+<li>ORマッパー内部である程度は最適化できるけど限界がある</li>
+<li>→ オブジェクト指向インターフェイスでSQLを隠蔽しているのに、どんなSQLが発行されているか気にしないといけないという矛盾</li>
+</ul></li>
+</ul><pre class="code">sub has_a_method {
+    my $self = shift;
+    return $related_class-&gt;find(id =&gt; $self-&gt;has_a_id);
+}
+
+# こうすると @$list の要素数分 &#34;SELECT * FROM related_table WHERE id = ?&#34; が実行される
+my @related;
+for my $obj (@$list) {
+    push @related, $obj-&gt;has_a_method;
+}
+
+# こっちなら &#34;SELECT * FROM related_table WHERE id IN (?, ?, ...)&#34; 1回で済む
+my $related = $related_class-&gt;select(
+    where =&gt; {
+        id =&gt; {-in =&gt; [map { $_-&gt;has_a_id } @$list]},
+    },
+);</pre>
+</div>
+<div class="section">
+    <h3>Dongry の概要</h3>
+    
+<ul>
+<li><a href="/wakabatan/" class="hatena-id-icon"><img src="http://cdn1.www.st-hatena.com/users/wa/wakabatan/profile_s.gif" width="16" height="16" alt="" class="hatena-id-icon">id:wakabatan</a> によるデータベース操作モジュール (DBI のラッパー)
+<ul>
+<li><a href="https://github.com/wakaba/dongry">https://github.com/wakaba/dongry</a></li>
+</ul></li>
+<li>DBI と ORM の中間解の一つ
+<ul>
+<li>SQL を直接投げることも、 ORM っぽい気持ちで使うこともできる</li>
+<li>場面に応じて書きやすい方法を選択できる</li>
+<li>本稿では主に ORM っぽい書き方を紹介する (小規模アプリケーション向き)
+<ul>
+<li>前ページで紹介した問題点は解消されないが、徐々に移行してゆける</li>
+</ul></li>
+</ul></li>
+</ul><pre class="code">  my $db = Dongry::Database-&gt;new
+      (sources =&gt; {default =&gt; {dsn =&gt; $dsn},
+                   master =&gt; {dsn =&gt; $dsn, writable =&gt; 1}});
+  
+  $db-&gt;execute (&#39;CREATE TABLE table1 (col1 INT, date DATE)
+                 ENGINE=InnoDB&#39;);
+  $db-&gt;execute (&#39;INSERT INTO table1 (col1) VALUES (?), (?)&#39;, [10, 2]);
+  
+  my $transaction = $db-&gt;transaction;
+  $db-&gt;insert (&#39;table1&#39;, [{col1 =&gt; 12, date =&gt; &#39;2012-01-02&#39;}]);
+  $db-&gt;update (&#39;table1&#39;, {date =&gt; &#39;2001-10-02&#39;},
+               where =&gt; {col1 =&gt; {&#39;&lt;&#39;, 5}});
+  $transaction-&gt;commit;
+  
+  $db-&gt;select (&#39;table1&#39;, {col1 =&gt; $value})-&gt;each_as_row (sub {
+    warn $_-&gt;get (&#39;date&#39;)-&gt;ymd (&#39;/&#39;), &#34;\n&#34;;
+  });
+
+  my $table = $db-&gt;table (&#39;hoge&#39;);
+  $table-&gt;create ({foo =&gt; 123, bar =&gt; &#39;xyz&#39;});
+  my $row = $table-&gt;find ({foo =&gt; 567});
+  $row-&gt;update ({bar =&gt; &#39;aaa&#39;});</pre>
+</div>
+<div class="section">
+    <h3>Dongry::Database->new</h3>
+    
+<ul>
+<li>データベース操作用オブジェクトを作成する</li>
+<li>接続先データベースを指定する
+<ul>
+<li>dsn - 接続先を DBI モジュールに指示する文字列</li>
+</ul></li>
+</ul><pre class="code"># マスター・スレーブ構成の場合の例
+$db = Dongry::Database-&gt;new(
+    sources =&gt; {
+        default =&gt; {dsn =&gt; $slave_dsn},
+        master =&gt; {dsn =&gt; $master_dsn, writable =&gt; 1},
+    },
+    schema =&gt; {
+        artist =&gt; {
+            primary_keys =&gt; [&#39;id&#39;],
+            type =&gt; {
+                name =&gt; &#39;text&#39;,
+            },
+        },
+    },
+);</pre>
+</div>
+<div class="section">
+    <h3>$db->table->find</h3>
+    
+<ul>
+<li>条件に合う行を1つ取得</li>
+</ul><pre class="code">my $artist_row = $db-&gt;table(&#39;artist&#39;)-&gt;find({name =&gt; &#39;初音ミク&#39;});
+print $artist_row-&gt;get(&#39;birthday&#39;), &#34;\n&#34;;</pre><pre class="code">SELECT * FROM artist WHERE name = &#39;初音ミク&#39; LIMIT 1;</pre>
+<table>
+    <tr>
+    <th>id</th>
+    <th>name</th>
+    <th>birthday</th>
+    </tr>
+    <tr>
+    <td>1</td>
+    <td>初音ミク</td>
+    <td>2007-08-31</td>
+    </tr>
+</table>
+</div>
+<div class="section">
+    <h3>$db->table->find_all</h3>
+    
+<ul>
+<li>条件に合う行を複数取得</li>
+</ul><pre class="code">my $artist_rows = $db-&gt;table(&#39;artist&#39;)-&gt;find_all(
+    {
+        name =&gt; { -prefix =&gt; &#39;鏡音&#39; },
+    },
+    order =&gt; [&#39;id&#39; =&gt; &#39;ASC&#39;],
+    # offset =&gt; 0,
+    limit =&gt; 10,
+);
+
+$artist_rows-&gt;each(sub {
+    print $_-&gt;get(&#39;name&#39;), &#34;\n&#34;;
+});</pre>
+<ul>
+<li>第1引数の {} 内に条件を指定する</li>
+<li>order で順序を指定する (カラム名 ASC|DESC)</li>
+<li>offset, limit で範囲を絞る</li>
+</ul><pre class="code">SELECT * FROM artist WHERE name LIKE &#39;鏡音%&#39; ORDER BY id ASC LIMIT 10;</pre>
+<table>
+    <tr>
+    <th>id</th>
+    <th>name</th>
+    <th>birthday</th>
+    </tr>
+    <tr>
+    <td>2</td>
+    <td>鏡音リン</td>
+    <td>2007-12-27</td>
+    </tr>
+    <tr>
+    <td>3</td>
+    <td>鏡音レン</td>
+    <td>2007-12-27</td>
+    </tr>
+</table>
+<ul>
+<li>List::Ish オブジェクトが返ってくる (補足編参照)
+<ul>
+<li>便利な arrayref</li>
+</ul></li>
+</ul>
+</div>
+<div class="section">
+    <h3>$db->table->create</h3>
+    
+<ul>
+<li>行の挿入</li>
+</ul><pre class="code">my $new_artist_row = $db-&gt;table(&#39;artist&#39;)-&gt;create({
+    id =&gt; 5,
+    name =&gt; &#39;重音テト&#39;,
+    birthday =&gt; &#39;2008-04-01&#39;,
+});
+print $new_artist_row-&gt;get(&#39;name&#39;);</pre><pre class="code">INSERT INTO artist (id, name, birthday)
+    VALUES (5, &#39;重音テト&#39;, &#39;2008-04-01&#39;);</pre>
+<table>
+    <tr>
+    <th>id</th>
+    <th>name</th>
+    <th>birthday</th>
+    </tr>
+    <tr>
+    <td>1</td>
+    <td>初音ミク</td>
+    <td>2007-08-31</td>
+    </tr>
+    <tr>
+    <td>2</td>
+    <td>鏡音リン</td>
+    <td>2007-12-27</td>
+    </tr>
+    <tr>
+    <td>3</td>
+    <td>鏡音レン</td>
+    <td>2007-12-27</td>
+    </tr>
+    <tr>
+    <td>4</td>
+    <td>巡音ルカ</td>
+    <td>2009-01-30</td>
+    </tr>
+    <tr>
+    <td>5</td>
+    <td>重音テト</td>
+    <td>2008-04-01</td>
+    </tr>
+</table>
+</div>
+<div class="section">
+    <h3>$row->get($column)</h3>
+    
+<ul>
+<li>得られた行の 1 つのフィールドへの読み取りアクセス</li>
+</ul><pre class="code">$artist_row = $db-&gt;table(&#39;artist&#39;)-&gt;find({name =&gt; &#39;初音ミク&#39;});
+
+# 現在の値を取得
+print $artist-&gt;get(&#39;name&#39;);</pre>
+</div>
+<div class="section">
+    <h3>$row->update({$column => $value})</h3>
+    
+<ul>
+<li>行のフィールドの変更</li>
+</ul><pre class="code">$artist_row = $db-&gt;table(&#39;artist&#39;)-&gt;find({name =&gt; &#39;初音ミク&#39;});
+
+# 新しい値を設定
+$artist-&gt;update({name =&gt; &#39;弱音ハク&#39;});</pre><pre class="code">UPDATE artist SET name = &#39;弱音ハク&#39; WHERE id = 1;</pre>
+<table>
+    <tr>
+    <th>id</th>
+    <th>name</th>
+    <th>birthday</th>
+    </tr>
+    <tr>
+    <td>1</td>
+    <td><del datetime="2011-08-19T08:50:33+09:00">初音ミク</del>弱音ハク</td>
+    <td>2007-08-31</td>
+    </tr>
+    <tr>
+    <td>2</td>
+    <td>鏡音リン</td>
+    <td>2007-12-27</td>
+    </tr>
+    <tr>
+    <td>3</td>
+    <td>鏡音レン</td>
+    <td>2007-12-27</td>
+    </tr>
+    <tr>
+    <td>4</td>
+    <td>巡音ルカ</td>
+    <td>2009-01-30</td>
+    </tr>
+    <tr>
+    <td>5</td>
+    <td>重音テト</td>
+    <td>2008-04-01</td>
+    </tr>
+</table>
+</div>
+<div class="section">
+    <h3>$row->delete</h3>
+    
+<ul>
+<li>行の削除</li>
+</ul><pre class="code">$artist_row = $db-&gt;table(&#39;artist&#39;)-&gt;find({name =&gt; &#39;初音ミク&#39;});
+$artist_row-&gt;delete;</pre><pre class="code">DELETE FROM artist WHERE id = 1;</pre>
+<table>
+    <tr>
+    <th>id</th>
+    <th>name</th>
+    <th>birthday</th>
+    </tr>
+    <tr>
+    <td>2</td>
+    <td>鏡音リン</td>
+    <td>2007-12-27</td>
+    </tr>
+    <tr>
+    <td>3</td>
+    <td>鏡音レン</td>
+    <td>2007-12-27</td>
+    </tr>
+    <tr>
+    <td>4</td>
+    <td>巡音ルカ</td>
+    <td>2009-01-30</td>
+    </tr>
+</table>
+</div>
+<div class="section">
+    <h3>条件の指定</h3>
+    
+<ul>
+<li>もうすぐ休憩です</li>
+</ul><pre class="code">my $name = &#39;初音ミク&#39;;
+my $artist_rows = $db-&gt;table(&#39;artist&#39;)-&gt;find_all(
+    {
+        name =&gt; $name,
+        birthday =&gt; { &#39;&gt;&#39;, $ymd1, &#39;&lt;&#39;, $ymd2 },
+    },
+);</pre><pre class="code">SELECT * FROM artist WHERE name = ? AND birthday &gt; ? AND birthday &lt; ?;</pre>
+</div>
+<div class="section">
+    <h3>SQL を使った書き方</h3>
+    <pre class="code">my $name = &#39;初音ミク&#39;;
+my $artists = $db-&gt;execute(
+    &#39;SELECT * FROM artist WHERE name = ? AND :birthday1 &lt; birthday AND birthday &lt; :birthday2&#39;,
+    {
+        name =&gt; $name,
+        birthday1 =&gt; $from_date,
+        birthday2 =&gt; $to_date,
+    },
+)-&gt;all;
+$artists-&gt;each(sub {
+    # $_ は行オブジェクトではなく、 bless されていないハッシュ参照
+    warn $_-&gt;{name}, &#34;\t&#34;, $_-&gt;{birthday}, &#34;\n&#34;;
+});</pre><pre class="code">SELECT * FROM artist WHERE name = &#39;初音ミク&#39; AND &#39;2000-01-01&#39; &lt; birthday AND birthday &lt; &#39;2010-01-01&#39;;</pre>
+</div>
+<div class="section">
+    <h3>セキュリティー</h3>
+    <pre class="code"># 悪い例
+my $name = &#39;初音ミク&#39;;
+my $artists = $db-&gt;execute( # 危険!
+    &#34;SELECT * FROM artist WHERE name = &#39;$name&#39; AND &#39;$from_date&#39; &lt; birthday AND birthday &lt; &#39;$to_date&#39;&#34;,
+)-&gt;all;</pre>
+<ul>
+<li>文字列連結は一般に安全ではない！ ( SQL インジェクション )
+<ul>
+<li>$name がユーザの入力だった場合</li>
+<li>$name = q('; DROP TABLE artist; ');</li>
+</ul></li>
+<li>書いたプログラムが安全かは常に気にしましょう</li>
+</ul><pre class="code">SELECT * FROM artist WHERE name = &#39;&#39;; DROP TABLE artist; &#39;&#39; AND &#39;2000-01-01&#39; &lt; birthday AND birthday &lt; &#39;2010-01-01&#39;;</pre>
+</div>
+<div class="section">
+    <h3>SQL / Dongry について語られなかったこと</h3>
+    
+<ul>
+<li>トランザクション</li>
+<li>複数 source の切り替え</li>
+<li>Query オブジェクト</li>
+<li>inflate/deflate (休憩後)</li>
+<li>JOIN (テーブルの結合)</li>
+</ul>
+</div>
+<div class="section">
+    <h3>休憩</h3>
+    
+</div>
+<div class="section">
+    <h3>bookmark.pl を作ってみよう</h3>
+    
+<ul>
+<li>実践編です</li>
+<li>小さなブックマークアプリを書いていく過程を見ていきます</li>
+</ul>
+<div class="section">
+    <h4>できること (大雑把に)</h4>
+    
+<ul>
+<li>ユーザは URL (エントリ) を個人のブックマークに追加し、コメントを残せる</li>
+<li>エントリはユーザに共通の情報を持つ (ページタイトルなど)</li>
+<li>とりあえず一人用で (マルチユーザも視野にいれつつ)</li>
+</ul>
+</div>
+<div class="section">
+    <h4>add, list, delete</h4>
+    <p>3 操作くらいできるようにしてみたい</p>
+
+<ul>
+<li>bookmark.pl add &lt;<var>url</var>&gt; [コメント]
+<ul>
+<li>ブックマークを追加</li>
+</ul></li>
+</ul><pre class="code">% ./perl bookmark.pl add http://www.yahoo.co.jp/ ヤッホー
+bookmarked [8] Yahoo! JAPAN &lt;http://www.yahoo.co.jp/&gt;
+  @2011-08-16 ヤッホー</pre>
+<ul>
+<li>bookmark.pl list
+<ul>
+<li>ブックマークの一覧を出力</li>
+</ul></li>
+</ul><pre class="code">% ./perl bookmark.pl
+ *** motemen&#39;s bookmarks ***
+[8] Yahoo! JAPAN &lt;http://www.yahoo.co.jp/&gt;
+  @2011-08-16 ヤッホー
+[7] The CPAN Search Site - search.cpan.org &lt;http://search.cpan.org/&gt;
+  @2011-08-16 くぱん
+[6] はてな &lt;http://www.hatena.ne.jp/&gt;
+  @2011-08-16 はてー
+[4] Google &lt;http://www.google.com/&gt;
+  @2011-08-16 ごー
+[1] motemen &lt;http://motemen.appspot.com/&gt;
+  @2011-08-15 モテメンドットコム</pre>
+<ul>
+<li>bookmark.pl delete &lt;<var>id</var>&gt;
+<ul>
+<li>ブックマークを削除</li>
+</ul></li>
+</ul><pre class="code">% ./perl bookmark.pl delete 4
+deleted [4] Google &lt;http://www.google.com/&gt;
+  @2011-08-16 ごー</pre>
+</div>
+</div>
+<div class="section">
+    <h3>…という bookmark.pl を作ってみよう</h3>
+    <p>コードを手元に</p>
+<pre class="code">% git clone git://github.com/wakaba/Intern-Bookmark.git
+% cd Intern-Bookmark
+% make deps
+% mysqladmin -uroot create intern_bookmark
+% mysql -uroot intern_bookmark &lt; db/schema.sql</pre><p>以降こんな感じでいきます</p>
+
+<ul>
+<li>テーブルの設計</li>
+<li>モデル (Active Record パターン風) の設計</li>
+<li>MySQL.pm を必要最低限書く</li>
+<li>アプリケーションのロジックを書く</li>
+</ul>
+</div>
+<div class="section">
+    <h3>テーブルの設計</h3>
+    <p>どんな概念が登場するでしょうか？</p>
+
+<ul>
+<li>user</li>
+<li>entry
+<ul>
+<li>ユーザに共通の、URL に関する情報</li>
+</ul></li>
+<li>bookmark
+<ul>
+<li>ユーザが URL をブックマークした情報 (ユーザ×エントリ)</li>
+</ul></li>
+</ul>
+<div class="section">
+    <h4>user</h4>
+    
+<table>
+    <tr>
+    <th>id</th>
+    <th>name</th>
+    </tr>
+    <tr>
+    <td>1</td>
+    <td>mechairoi</td>
+    </tr>
+    <tr>
+    <td>2</td>
+    <td>motemen</td>
+    </tr>
+    <tr>
+    <td>3</td>
+    <td>yanbe</td>
+    </tr>
+</table>
+<ul>
+<li>UNIQUE KEY (name)</li>
+</ul>
+</div>
+<div class="section">
+    <h4>entry</h4>
+    
+<table>
+    <tr>
+    <th>id</th>
+    <th>url</th>
+    <th>title</th>
+    </tr>
+    <tr>
+    <td>1</td>
+    <td><a href="http://www.example.com/">http://www.example.com/</a></td>
+    <td>IANA — Example domains</td>
+    </tr>
+    <tr>
+    <td>2</td>
+    <td><a href="http://www.hatena.ne.jp/">http://www.hatena.ne.jp/</a></td>
+    <td>はてな</td>
+    </tr>
+    <tr>
+    <td>3</td>
+    <td><a href="http://motemen.appspot.com/">http://motemen.appspot.com/</a></td>
+    <td>motemen</td>
+    </tr>
+</table>
+<ul>
+<li>UNIQUE KEY (url)</li>
+</ul>
+</div>
+<div class="section">
+    <h4>bookmark</h4>
+    
+<table>
+    <tr>
+    <th>id</th>
+    <th>user_id</th>
+    <th>entry_id</th>
+    <th>comment</th>
+    </tr>
+    <tr>
+    <td>1</td>
+    <td>1</td>
+    <td>1</td>
+    <td>例示用ドメインか〜。</td>
+    </tr>
+    <tr>
+    <td>2</td>
+    <td>1</td>
+    <td>2</td>
+    <td>はてな〜。</td>
+    </tr>
+    <tr>
+    <td>3</td>
+    <td>2</td>
+    <td>3</td>
+    <td>僕のホームページです</td>
+    </tr>
+    <tr>
+    <td>4</td>
+    <td>3</td>
+    <td>3</td>
+    <td>モテメンさんのホームページですね</td>
+    </tr>
+    <tr>
+    <td>5</td>
+    <td>3</td>
+    <td>1</td>
+    <td>example ですね</td>
+    </tr>
+</table>
+<ul>
+<li>UNIQUE KEY (user_id, entry_id)</li>
+</ul>
+</div>
+</div>
+<div class="section">
+    <h3>コードの設計</h3>
+    
+<ul>
+<li>ロジックをモデル (MoCo) に集約
+<ul>
+<li>プログラムがすっきりする</li>
+<li>テスト書きやすい</li>
+<li>コマンドライン以外からも使える</li>
+</ul></li>
+</ul>
+</div>
+<div class="section">
+    <h3>最初に利用例を考えてみるといいです</h3>
+    <pre class="code"># ブックマーク一覧
+$user-&gt;bookmarks;
+
+# ブックマーク追加
+$user-&gt;add_bookmark(
+    url =&gt; $url,
+    comment =&gt; $comment,
+);
+
+# ブックマーク削除
+$user-&gt;delete_bookmark($entry);</pre>
+<ul>
+<li>とりあえずテストを書いてみる</li>
+<li>とりあえず一番外側のスクリプトを書いてみる</li>
+</ul>
+</div>
+<div class="section">
+    <h3>bookmark.pl</h3>
+    
+<ul>
+<li>アプリケーションのロジックはモデルクラス (Intern::Bookmark::Record::*) に集約</li>
+<li>コマンドライン周りの処理だけ記述
+<ul>
+<li>Webアプリケーションではbookmark.pl は使わない</li>
+</ul></li>
+</ul><pre class="code">#!/usr/bin/env perl
+use strict;
+use warnings;
+use FindBin;
+use lib &#34;$FindBin::Bin/lib&#34;, glob &#34;$FindBin::Bin/modules/*/lib&#34;;
+use Intern::Bookmark::MySQL;
+use Intern::Bookmark::Record::User;
+use Pod::Usage; # for pod2usage()
+use Encode::Locale;
+
+Intern::Bookmark::MySQL-&gt;init_by_dsn(&#39;dbi:mysql:dbname=intern_bookmark;user=root;password=&#39;);
+
+binmode STDOUT, &#39;:encoding(console_out)&#39;;
+
+my %HANDLERS = (
+    add  =&gt; \&amp;add_bookmark,
+    list =&gt; \&amp;list_bookmarks,
+);
+
+my $command = shift @ARGV || &#39;list&#39;;
+
+
+my $user = Intern::Bookmark::Record::User-&gt;new_from_name($ENV{USER} // &#39;nobody&#39;);
+my $handler = $HANDLERS{ $command } or pod2usage;
+
+$handler-&gt;($user, @ARGV);
+
+exit 0;
+
+sub add_bookmark {
+    my ($user, $url, $comment) = @_;
+
+    my $bookmark = $user-&gt;add_bookmark(
+        url =&gt; $url,
+        comment =&gt; $comment,
+    );
+    print &#39;bookmarked &#39;, $bookmark-&gt;as_string, &#34;\n&#34;;
+}
+
+sub list_bookmarks {
+    my ($user) = @_;
+
+    printf &#34; *** %s&#39;s bookmarks ***\n&#34;, $user-&gt;name;
+
+    my $bookmarks = $user-&gt;bookmarks;
+    foreach my $bookmark (@$bookmarks) {
+        print $bookmark-&gt;as_string, &#34;\n&#34;;
+    }
+}</pre>
+</div>
+<div class="section">
+    <h3>Active Record パターン風に Dongryを使う流れ</h3>
+    
+<ul>
+<li>Intern::Bookmark::MySQL
+<ul>
+<li>接続先のデータベースの情報を書くクラス</li>
+</ul></li>
+<li>Intern::Bookmark::Record::*
+<ul>
+<li>各テーブルに相当するオブジェクトのクラス</li>
+</ul></li>
+</ul><p>これらのクラスを準備する.</p>
+
+<div class="section">
+    <h4>submodule として追加</h4>
+    <pre class="code">% git submodule add git://github.com/wakaba/dongry modules/dongry
+% git submodule add git://github.com/wakaba/perl-ooutils modules/ooutils
+% git submodule add git://github.com/wakaba/perl-rdb-utils modules/rdb-utils</pre>
+</div>
+</div>
+<div class="section">
+    <h3>まずは MySQL.pm を書く</h3>
+    
+<ul>
+<li>DB の接続情報を設定</li>
+<li>$dsn = "dbi:mysql:dbname=intern_bookmark;user=root;password="
+<ul>
+<li>DBD::mysql を使用して MySQL の intern_bookmark データベースに接続</li>
+</ul></li>
+</ul><pre class="code">package Intern::Bookmark::MySQL;
+use strict;
+use warnings;
+use DateTime;
+use Dongry::Type::DateTime;
+
+sub init_by_dsn {
+    my ($class, $dsn) = @_;
+
+    $Dongry::Database::Registry-&gt;{bookmark} = {
+        sources =&gt; {
+            master =&gt; {
+                dsn =&gt; $dsn,
+                writable =&gt; 1,
+            },
+            default =&gt; {
+                dsn =&gt; $dsn,
+            },
+        },
+        schema =&gt; {
+            # 省略 (後述)
+        },
+    };
+}
+
+1;</pre>
+</div>
+<div class="section">
+    <h3>各モデルクラス</h3>
+    <pre class="code">package Intern::Bookmark::Record::User;
+use strict;
+use warnings;
+use Dongry::Database;
+use Intern::Bookmark::MySQL;
+
+sub db {
+    return Dongry::Database-&gt;load(&#39;bookmark&#39;);
+}
+
+1;</pre>
+<ul>
+<li>Dongry::Database->load で、Intern::Bookmark::MySQL で定義した「bookmark」データベースのオブジェクトを取得する</li>
+<li>その他 Record::Entry, Record::Bookmark も同じように</li>
+<li>3 つのテーブルに対応する 3 つのクラス</li>
+</ul>
+</div>
+<div class="section">
+    <h3>has_many 的なもの</h3>
+    <p>ユーザーは複数のブックマークを持っているので</p>
+<pre class="code">$user-&gt;bookmarks;</pre><p>ってやりたい</p>
+<pre class="code">package Intern::Bookmark::Record::User;
+
+...
+
+sub bookmarks {
+    my $self = shift;
+    my %opts = @_;
+    my $page = $opts{page} || 1;
+    my $limit = $opts{limit} || 3;
+    my $offset = ($page - 1) * $limit;
+
+    return $self-&gt;db-&gt;table(&#39;bookmark&#39;)-&gt;find_all(
+        { user_id =&gt; $self-&gt;id },
+        limit  =&gt; $limit,
+        offset =&gt; $offset,
+        order  =&gt; [&#39;created&#39; =&gt; &#39;DESC&#39;],
+    )-&gt;map(sub {
+        return Intern::Bookmark::Record::Bookmark-&gt;new_from_row($_);
+    });
+}</pre>
+</div>
+<div class="section">
+    <h3>inflate / deflate</h3>
+    
+<ul>
+<li>$bookmark->created が DateTime オブジェクトになってると何かと便利</li>
+<li>$bookmark->comment は Perl 文字列として扱いたい
+<ul>
+<li>Perl の文字列 (的なもの) にはバイト列 (byte string) と utf8 文字列 (utf8 character string) の2種類があります (ちょっと面倒です)
+<ul>
+<li>外界との入出力はつねにバイト列、プログラムの内部では文字列</li>
+<li>文字化けとか "Wide character ..." の警告を見かけたら自分がどちらを扱っているかに注意しましょう</li>
+</ul></li>
+<li>補足編も参照してください.</li>
+</ul></li>
+</ul><pre class="code">package Intern::Bookmark::MySQL;
+use Dongry::Type::DateTime;
+
+...
+        schema =&gt; {
+            bookmark =&gt; {
+                primary_keys =&gt; [&#39;id&#39;],
+                type =&gt; {
+                    comment =&gt; &#39;text&#39;,
+                    created =&gt; &#39;timestamp_as_DateTime&#39;,
+                    updated =&gt; &#39;timestamp_as_DateTime&#39;,
+                },
+                default =&gt; {
+                    created =&gt; sub { DateTime-&gt;now(time_zone =&gt; &#39;UTC&#39;) },
+                    updated =&gt; sub { DateTime-&gt;now(time_zone =&gt; &#39;UTC&#39;) },
+                },
+            },
+        },
+...</pre>
+<ul>
+<li>ついでにデフォルト値も指定
+<ul>
+<li>INSERT するときに値が明示されていないと default の関数が実行される</li>
+</ul></li>
+</ul>
+</div>
+<div class="section">
+    <h3>ロジックの実装</h3>
+    
+<ul>
+<li>ここが一番楽しいところですね！</li>
+</ul><pre class="code">package Intern::Bookmark::Record::User;
+use Carp;
+use Intern::Bookmark::Record::Bookmark;
+
+sub add_bookmark {
+    my ($self, %args) = @_;
+    my $url = $args{url} or croak q(add_bookmark: parameter &#39;url&#39; required);
+
+    my $entry = Intern::Bookmark::Record::Entry-&gt;new_from_url($url);
+    if (my $bookmark = $self-&gt;bookmark_on_entry($entry)) {
+        $bookmark-&gt;comment($args{comment});
+        return $bookmark;
+    } else {
+        return Intern::Bookmark::Record::Bookmark-&gt;create(
+            user =&gt; $self,
+            entry =&gt; $entry,
+            comment =&gt; $args{comment},
+        );
+    }
+}</pre>
+<ul>
+<li>croak: use [cpan:Carp] すると使えます
+<ul>
+<li>die と似てるけど呼び出し元で死ぬ</li>
+</ul></li>
+</ul>
+</div>
+<div class="section">
+    <h3>テスト</h3>
+    
+<ul>
+<li>書いたプログラムが正しいかどう確かめるか？
+<ul>
+<li>小規模なら実際に動かしてみるのでもやっていける
+<ul>
+<li>= 大規模だとムリ</li>
+</ul></li>
+<li>コードの変更の影響を完全に把握するのは無理
+<ul>
+<li>意図せず別の機能に不具合を引き起こしていないか</li>
+</ul></li>
+<li>他人のコードの意図は把握できない
+<ul>
+<li>昔の自分も他人です (だいたい一晩から)</li>
+</ul></li>
+</ul></li>
+<li>今回は単体テストを書きましょう</li>
+</ul>
+<div class="section">
+    <h4>テストで書くべきこと</h4>
+    
+<ul>
+<li>正しい条件で正しく動くこと</li>
+<li>おかしな条件で正しく動くこと (エラーを吐くなど)</li>
+<li>境界条件で正しく動くこと</li>
+</ul>
+</div>
+</div>
+<div class="section">
+    <h3>テスト例</h3>
+    <pre class="code">package t::Intern::Bookmark::Record::User;
+use strict;
+use warnings;
+use base &#39;Test::Class&#39;;
+use Test::More;
+use t::Bookmark;
+
+...
+
+sub add_bookmark : Test(5) {
+    # テストしたいメソッドの登場人物を用意
+    ok my $user = Intern::Bookmark::Record::User-&gt;new_from_name(&#39;test_user_1&#39;), &#39;create user&#39;;
+
+    # メソッド実行前の状態をテスト
+    is_deeply $user-&gt;bookmarks-&gt;to_a, [];
+
+    # テストしたいメソッドを実行
+    my $bookmark = $user-&gt;add_bookmark(url =&gt; &#39;http://www.example.com/&#39;, comment =&gt; &#39;nice page&#39;);
+
+    # メソッドの返り値をテスト
+    isa_ok $bookmark, &#39;Intern::Bookmark::Record::Bookmark&#39;;
+    is $bookmark-&gt;entry-&gt;url, &#39;http://www.example.com/&#39;, &#39;$bookmark url&#39;;
+
+    # メソッド実行後の状態をテスト
+    is_deeply
+        $user-&gt;bookmarks-&gt;map(sub { $_-&gt;entry-&gt;url })-&gt;to_a,
+        [ &#39;http://www.example.com/&#39; ],
+        &#39;$user-&gt;bookmarks&#39;;
+}
+
+...
+
+__PACKAGE__-&gt;runtests;</pre>
+</div>
+<div class="section">
+    <h3>テスト用モジュールを書いておくと便利です</h3>
+    <pre class="code">package t::Bookmark;
+use strict;
+use warnings;
+use lib &#39;lib&#39;, glob &#39;modules/*/lib&#39;;
+use Intern::Bookmark::MySQL;
+use Dongry::Database;
+
+Intern::Bookmark::MySQL-&gt;init_by_dsn(&#39;dbi:mysql:dbname=intern_bookmark_test;user=root;password=&#39;);
+
+$Intern::Bookmark::Record::Entry::NO_HTTP = 1;
+
+sub truncate_db {
+    Dongry::Database-&gt;load(&#39;bookmark&#39;)-&gt;execute(&#34;TRUNCATE TABLE $_&#34;)
+        for qw(user entry bookmark);
+}
+
+1;</pre>
+<ul>
+<li>すべてのテスト用スクリプトから use する</li>
+<li>本番とは別のテスト用データベースの dsn を設定する</li>
+<li>HTTP アクセスしないフラグを立てる、等々</li>
+</ul>
+</div>
+<div class="section">
+    <h3>ディレクトリ構成</h3>
+    <pre class="code"> - bookmark.pl
+ - lib       - Bookmark  - MySQL.pm
+                         - Record       - User.pm
+                                        - Entry.pm
+                                        - Bookmark.pm
+
+ - t         - Bookmark.pm
+             - record-user.t
+             - record-entry.t
+
+ - modules   - dongry
+             - ooutils
+             - rdb-utils</pre>
+</div>
+<div class="section">
+    <h3>以上</h3>
+    
+<ul>
+<li>かけ足で説明してきましたが、全容はもっと深いので、ソースや pod (perldoc) を読んでみてください</li>
+<li>試行錯誤もいいですが人に訊くのが一番楽!!!</li>
+</ul>
+</div>
+<div class="section">
+    <h3>課題</h3>
+    
+<ul>
+<li>コマンドラインインターフェースで日記を書けるツール diary.pl を作成してください (必須)</li>
+<li>diary.pl に機能を追加してください (記事のカテゴリ機能など)</li>
+</ul>
+<div class="section">
+    <h4>基本機能</h4>
+    
+<ul>
+<li>記事の追加</li>
+<li>記事の一覧表示</li>
+<li>記事の編集</li>
+<li>記事の削除</li>
+<li>マルチユーザー (ただし今回はシングルユーザーでしか利用しない)</li>
+<li>基本機能の実装は次の課題で使うので必須です.</li>
+</ul>
+</div>
+<div class="section">
+    <h4>実行例</h4>
+    <pre class="code">% ./perl diary.pl add タイトル  # 記事追加
+% ./perl diary.pl list          # 記事を一覧
+% ./perl diary.pl edit 記事ID   # 記事を編集
+% ./perl diary.pl delete 記事ID # 記事を削除</pre>
+</div>
+<div class="section">
+    <h4>スキーマ設計 (例)</h4>
+    
+<ul>
+<li>望むように独自のスキーマを設計してよいです</li>
+<li>プライマリキーには AUTO_INCREMENT を指定しておくと便利</li>
+<li>データベース名は intern_diary_ユーザ名 としてください</li>
+</ul><pre class="code">CREATE TABLE user (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARBINARY(32) NOT NULL,
+    created DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY (name)
+);
+
+CREATE TABLE entry (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id INT UNSIGNED NOT NULL,
+    title VARBINARY(255) NOT NULL,
+    body BLOB NOT NULL,
+    created DATETIME NOT NULL,
+    updated DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY (user_id, created)
+);</pre>
+</div>
+<div class="section">
+    <h4>オプション課題 独自機能</h4>
+    
+<ul>
+<li>アプリケーションに独自の機能を追加してみてください
+<ul>
+<li>記事のカテゴリ分け機能</li>
+<li>検索</li>
+<li>などなど</li>
+</ul></li>
+</ul>
+</div>
+<div class="section">
+    <h4>ヒント</h4>
+    
+<ul>
+<li>設計/コード/コメント にも気を使いましょう</li>
+<li>テストを書きましょう</li>
+<li>アピールポイントなどあれば READMEファイルへ</li>
+</ul>
+</div>
+<div class="section">
+    <h4>諸注意</h4>
+    
+<ul>
+<li>コミット先こんな感じで</li>
+</ul><pre class="code">Intern-Diary
+            /lib/
+            /t/
+            /README
+            /diary.pl</pre>
+<ul>
+<li>dongry と依存モジュールを submodule として追加しましょう
+<ul>
+<li>"modules/.../lib" を use lib (@INC に追加) する必要があります</li>
+</ul></li>
+</ul><pre class="code">% git submodule add git://github.com/wakaba/dongry modules/dongry
+% git submodule add git://github.com/wakaba/perl-ooutils modules/ooutils
+% git submodule add git://github.com/wakaba/perl-rdb-utils modules/rdb-utils</pre>
+<ul>
+<li>DB 名
+<ul>
+<li>評価・検証する際にバッティングしないように database 名を intern_diary_{はてな ID} としてください。</li>
+</ul></li>
+</ul><p>hitode909 さんだったら、</p>
+<pre class="code">CREATE DATABASE intern_diary_hitode909;</pre>
+</div>
+<div class="section">
+    <h4>mysqldump お願い</h4>
+    <p>評価のため mysqldump もお願いします。</p>
+<pre class="code">% mysqldump -uroot -Q tablename &gt; tablename.sql</pre><p>保存先は mysqldump ディレクトリに<br />
+hitode909 さんだったら、</p>
+<pre class="code">% mkdir mysqldump
+% mysqldump -uroot -Q intern_diary_hitode909 &gt; mysqldump/intern_diary_hitode909.sql</pre><p>これも commit, push してください。</p>
+
+</div>
+</div>
+<div class="section">
+    <h3>ヒント(& BK)</h3>
+    
+<div class="section">
+    <h4>今日書くコードは明日以降も利用します！</h4>
+    
+<ul>
+<li>CLI 以外の利用も見据えた設計を</li>
+<li>アプリケーションに必要な機能は Record クラス内に書きましょう</li>
+</ul>
+</div>
+<div class="section">
+    <h4>コマンドラインに関すること</h4>
+    
+<ul>
+<li><code>@ARGV</code> 変数
+<ul>
+<li>./perl diary.pl hoge fuga として起動すると <code>@ARGV = ('hoge', 'fuga')</code> となります</li>
+</ul></li>
+<li>コマンドライン引数をパーズするには [cpan:Getopt::Long]</li>
+<li>標準入力からの読み取り</li>
+</ul><pre class="code">my $data = join &#34;\n&#34;, &lt;STDIN&gt;;</pre>
+</div>
+</div>
+<div class="section">
+    <h3>開発のお供に</h3>
+    
+<ul>
+<li>[cpan:Devel::KYTProf] を使うのがオススメ
+<ul>
+<li>use するだけ</li>
+</ul></li>
+</ul><pre class="code">croquis.local% perl -MDevel::KYTProf ./bookmark.pl add http://www.hatena.ne.jp/ はてー
+    0.251 ms  [DBI::st]  SELECT * FROM user WHERE ( name = ? ) LIMIT 1 (bind: motemen) (1 rows)  | DBIx::MoCo::DataBase:344
+    0.207 ms  [DBI::st]  SELECT * FROM entry WHERE ( url = ? ) LIMIT 1 (bind: http://www.hatena.ne.jp/) (0 rows)  | DBIx::MoCo::DataBase:344
+   21.194 ms  [DBI::st]  DESCRIBE `entry` &#39;%&#39;  (5 rows)  | DBD::mysql::db:426
+    0.228 ms  [DBI::st]  INSERT INTO entry ( created_on, updated_on, url) VALUES ( ?, ?, ? ) (bind: 2011-08-16 02:42:44, 2011-08-16 02:42:44, http://www.hatena.ne.jp/) (1 rows)  | DBIx::MoCo::DataBase:344
+    2.012 ms  [DBI::st]  DESCRIBE `entry` &#39;%&#39;  (5 rows)  | DBD::mysql::db:426
+    0.290 ms  [DBI::st]  SHOW INDEX FROM entry  (2 rows)  | DBIx::MoCo::DataBase:344
+ 5435.445 ms  [LWP::UserAgent]  GET http://www.hatena.ne.jp/  | Intern::Bookmark::MoCo::Entry:42
+    0.240 ms  [DBI::st]  UPDATE entry SET title = ? WHERE ( id = ? ) (bind: はてな, 6) (1 rows)  | DBIx::MoCo::DataBase:344
+    0.192 ms  [DBI::st]  SELECT * FROM bookmark WHERE ( ( entry_id = ? AND user_id = ? ) ) LIMIT 1 (bind: 6, 1) (0 rows)  | DBIx::MoCo::DataBase:344
+    2.800 ms  [DBI::st]  DESCRIBE `bookmark` &#39;%&#39;  (6 rows)  | DBD::mysql::db:426
+    0.180 ms  [DBI::st]  INSERT INTO bookmark ( comment, created_on, entry_id, updated_on, user_id) VALUES ( ?, ?, ?, ?, ? ) (bind: はてー, 2011-08-16 02:42:49, 6, 2011-08-16 02:42:49, 1) (1 rows)  | DBIx::MoCo::DataBase:344
+    0.848 ms  [DBI::st]  DESCRIBE `bookmark` &#39;%&#39;  (6 rows)  | DBD::mysql::db:426
+    0.390 ms  [DBI::st]  SHOW INDEX FROM bookmark  (5 rows)  | DBIx::MoCo::DataBase:344
+    0.212 ms  [DBI::st]  SELECT * FROM entry WHERE ( id = ? ) LIMIT 1 (bind: 6) (1 rows)  | DBIx::MoCo::DataBase:344
+bookmarked [6] はてな &lt;http://www.hatena.ne.jp/&gt;
+  @2011-08-16 はてー</pre>
+<ul>
+<li>または環境変数 <code>MOCO_DEBUG</code> を真にする</li>
+<li>[cpan:Data::Dumper] いいです</li>
+<li>repl もいいですね ([cpan:Eval::WithLexicals], [cpan:Devel::REPL])</li>
+</ul><!-- -->
+</div>
+<div class="section">
+    <h3>ご清聴ありがとうございました</h3>
+    
+<ul>
+<li>分からないことはメンターか隣りのインターンに尋ねましょう！
+<ul>
+<li>人気の質問に関してはあとでまとめて補足をするかもしれないのでどんどん訊いてください</li>
+</ul></li>
+<li>資料は グループにあります。講義で喋っていないことについても補足がありますので参考にしてください。</li>
+</ul>
+</div>
+<div class="section">
+    <h3>補足編</h3>
+    
+</div>
+<div class="section">
+    <h3>byte string & utf8 string</h3>
+    <p><a href="http://search.cpan.org/~nwclark/perl-5.8.8/lib/utf8.pm">perldoc utf8</a>, <a href="http://search.cpan.org/~nwclark/perl-5.8.8/pod/perlunicode.pod">perlunicode</a></p>
+
+<ul>
+<li>Perl の文字列にはバイト列 (byte string) と文字列 (utf8 character string) の2種類がある</li>
+<li>バイト列は 0x00-0xFF のバイトの並びを表す</li>
+<li>文字列は U 0000～U-FFFFFFFF (32ビット環境の場合) の文字の並びを表す
+<ul>
+<li>一般的な計算機では UTF-8 で符号化されているので utf8 文字列と呼ばれる</li>
+</ul></li>
+<li>バイト列と区別するとき、文字列のことを「(utf8) フラグが立っている」という</li>
+</ul><pre class="code"># 何もしないとバイト列になる (ファイルが UTF-8 なら、UTF-8 を表すバイト列になる)
+$bytes = &#39;あいうえお&#39;;
+warn length $bytes; # 15
+
+# use utf8; プラグマの効力が及ぶ範囲では文字列になる (ファイルは UTF-8 にしておく)
+use utf8;
+$chars = &#39;あいうえお&#39;;
+warn length $chars; # 5</pre>
+</div>
+<div class="section">
+    <h3>byte/character convertion</h3>
+    <p>[cpan:Encode]</p>
+
+<ul>
+<li>入出力は基本的にバイト列になっている
+<ul>
+<li>ファイル、DB、HTTP、...</li>
+</ul></li>
+<li>Perl で文字の列を扱いたいときは原則として utf8 文字列を使うべき
+<ul>
+<li>→ 入力はできるだけ早い段階で文字列に変換し、出力はできるだけ遅い段階でバイト列に変換する</li>
+</ul></li>
+<li>バイト列と文字列の相互変換には Encode モジュールを使う
+<ul>
+<li>encode/decode はどちらがどちらか覚えにくいけど、
+<ul>
+<li>人間が読める文字列をある符号化方式で機械が読めるバイト列にするのが符号化 (encode)</li>
+<li>機械が読めるバイト列を人間が読める文字列にするのが復号 (decode)</li>
+</ul></li>
+</ul></li>
+</ul><pre class="code">use Encode;
+
+$bytes = encode &#39;utf8&#39;, $chars&amp; # 文字列を符号化してバイト列に
+$chars = decode &#39;utf8&#39;, $bytes&amp; # バイト列を復号して文字列に</pre>
+</div>
+<div class="section">
+    <h3>List::Ish</h3>
+    
+<ul>
+<li>find_all メソッドで返ってくるオブジェクト</li>
+<li>ほとんどただの配列だけど、操作を Ruby っぽく書ける</li>
+<li>DB 操作に関わるメソッドはありません</li>
+<li>c.f. <a href="https://github.com/wakaba/perl-ooutils/blob/master/lib/List/Ish.pod">https://github.com/wakaba/perl-ooutils/blob/master/lib/List/Ish.pod</a> を見よう</li>
+</ul>
+<ul>
+<li><strong>push, pop, shift, unshift, add, append, prepend</strong></li>
+<li><strong>length, size</strong></li>
+<li><strong>first, last</strong></li>
+<li><strong>map</strong>, <strong>each</strong></li>
+<li><strong>grep</strong></li>
+<li>find</li>
+<li>uniq_by</li>
+<li>to_a, to_list</li>
+</ul>
+</div>
+<div class="section">
+    <h3>SQL</h3>
+    <pre class="code">SELECT * FROM table_name
+    WHERE column1 = &#39;value1&#39; AND column2 &lt; 40
+    ORDER BY column3 ASC
+    LIMIT 10;</pre><p>FROM で指定されたテーブルから、WHERE で指定された条件のレコードを、 ORDER BY の順序で、 LIMIT の個数だけ取得する。</p>
+
+<ul>
+<li>WHERE ... OR ...</li>
+<li>WHERE column1 IN ('value1', 'value2', 'value3')</li>
+<li>ORDER BY column2 ASC -- 昇順</li>
+<li>ORDER BY column2 DESC -- 降順</li>
+</ul><pre class="code">INSERT INTO table_name (column1, column2) VALUES (&#39;value1&#39;, &#39;value2&#39;);</pre><pre class="code">UPDATE table_name SET column1 = &#39;value1&#39; WHERE column2 = &#39;value2&#39;;</pre><pre class="code">DELETE table_name WHERE column1 = &#39;value1&#39;;</pre><p>DELETE table_name; だけだと大変なことに!</p>
+<pre class="code">CREATE TABLE table_name (
+    column1 INT UNSIGNED NOT NULL, -- 整数
+    column2 VARCHAR(127) NOT NULL, -- 可変長文字列
+    column3 TEXT NOT NULL, -- もっと長い文字列
+    column4 TIMESTAMP DEFAULT 0, -- 日時
+    PRIMARY KEY (column1),
+    KEY (column2),
+    KEY (column4)
+) DEFAULT CHRASET=BINARY;</pre><p>テーブルを作る。</p>
+
+<ul>
+<li>PRIMARY KEY (主キー) には他のどのレコードとも異なる ID が入るカラムを指定しておく</li>
+<li>KEY には検索に使うカラム (WHERE で使うカラム) を指定しておく
+<ul>
+<li>検索高速化のためのインデックスが作られる</li>
+</ul></li>
+</ul>
+</div>
+<div class="section">
+    <h3>SQL::Abstract</h3>
+    <p>詳しくは [cpan:SQL::Abstract] をみて</p>
+<pre class="code">    # WHERE column = &#39;value&#39;
+    where =&gt; {
+        column =&gt; &#39;value&#39;,
+    },</pre><pre class="code">    # WHERE column &lt; 40
+    where =&gt; {
+        column =&gt; {&#39;&lt;&#39;, 40},
+    },</pre><pre class="code">    # WHERE column != &#39;value&#39;
+    where =&gt; {
+        column =&gt; {&#39;!=, &#39;value&#39;},
+    },</pre><pre class="code">    # WHERE column IS NULL
+    where =&gt; {
+        column =&gt; undef,
+    },</pre><pre class="code">    # WHERE column1 = &#39;value1&#39; AND column2 IN (&#39;a&#39;, &#39;b&#39;, &#39;c&#39;)
+    where =&gt; {
+        column1 =&gt; &#39;value1&#39;,
+        column2 =&gt; {-in =&gt; [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]},
+    },</pre><p>IN で指定する値が空でも SQL::Abstract 的には問題ないけど MySQL 的には構文エラーなので注意。</p>
+<pre class="code">    # WHERE column IN () -- 構文エラー
+    where =&gt; {
+        column =&gt; {-in =&gt; []},
+    },</pre>
+</div>
+<div class="section">
+    <h3>Placeholder</h3>
+    <p>SQL 文に「?」(placeholder) を埋め込むとその部分に入る値を別に渡せる。</p>
+<pre class="code">my $sql = &#39;select album.id, name, title, released_on &#39;
+        . &#39;from artist inner join albums on artist.id = album.artist_id &#39;
+        . &#39;where artist.name = ?&#39;;
+
+my $result = $dbh-&gt;selectall_hashref($sql, &#39;id&#39;, undef, $artist_name);</pre><p>「?」に $artist_name が代入される。 Dongry, MoCo, SQL::Abstract も実際は placeholder を使っている。</p><p>Placeholder を使うと、</p>
+
+<ul>
+<li>SQL インジェクションの心配がなくなる</li>
+<li>MySQL が SQL 文の構文解析結果をキャッシュしやすくなる
+<ul>
+<li>「SELECT * FROM artist WHERE name = '初音ミク'」と「SELECT * FROM artist WHERE name = '鏡音リン'」のどちらも「SELECT * FROM artist WHERE name = ?」になる</li>
+</ul></li>
+</ul><p>... というメリットがある。</p>
+
+</div>
+<div class="section">
+    <h3>トランザクションの使い方</h3>
+    
+<ul>
+<li>複数の変更をアトミックに適用したいとき (すべての変更を適用する、またはすべての変更を取り消す、のいずれかを行い、その中間の状態にしたくないとき) はトランザクションを使います。</li>
+</ul><pre class="code">my $transaction = $db-&gt;transaction;
+
+$db-&gt;execute(...);
+...
+
+# いずれかを呼び出す
+$transaction-&gt;commit;
+$transaction-&gt;rollback;</pre><p>トランザクション内の SELECT でロックしたい時は</p>
+<pre class="code">$db-&gt;select(..., lock =&gt; &#39;share&#39;);  # LOCK IN SHARE MODE
+$db-&gt;select(..., lock =&gt; &#39;update&#39;); # FOR UPDATE</pre>
+</div>
+<div class="section">
+    <h3>DateTime</h3>
+    <p>[cpan:DateTime], [cpan:DateTime::Format::MySQL]</p>
+
+<ul>
+<li>Perl で日時を表すときは DateTime がよく使われる (が重い)</li>
+</ul><pre class="code">$dt = DateTime-&gt;now(time_zone =&gt; &#39;UTC&#39;);
+$dt = DateTime-&gt;new(year =&gt; 2010, month =&gt; 8, day =&gt; 3, hour =&gt; 10, minute =&gt; 0, second =&gt; 0, time_zone =&gt; &#39;UTC&#39;);
+
+$dt-&gt;add(days =&gt; 3);
+$dt-&gt;subtract(hours =&gt; 4);
+
+warn $dt-&gt;ymd(&#39;-&#39;);
+warn $dt-&gt;hms(&#39;:&#39;);</pre>
+<ul>
+<li>データベースでは UTC (協定世界時) で保存し、表示するときに必要ならタイムゾーン変換するのが好ましい</li>
+</ul><pre class="code">warn $dt-&gt;time_zone;
+$dt-&gt;set_time_zone(&#39;Asia/Tokyo&#39;);</pre>
+<ul>
+<li>MySQL 形式との変換には DateTime::Format::MySQL を使う</li>
+</ul><pre class="code">use DateTime::Format::MySQL;
+
+my $dt = DateTime::Format::MySQL-&gt;parse_datetime(&#39;2010-01-01 02:02:02&#39;);
+warn DateTime::Format::MySQL-&gt;format_datetime($dt);</pre>
+<ul>
+<li>Dongry だと Dongry::Type::DateTime / "timestamp_as_DateTime" で変換を隠蔽できる (本編参照)</li>
+</ul>
+<ul>
+<li>なお、本当の Perl ネイティブの時刻形式は time 関数の形式
+<ul>
+<li>ほとんどの環境では Unix の time_t = 1970年1月1日0時0分0秒 (UTC) からの秒数</li>
+</ul></li>
+</ul><pre class="code">$time = time;
+warn $time;
+
+use DateTime;
+$dt = DateTime-&gt;from_epoch(epoch =&gt; $time);
+warn $dt-&gt;epoch;</pre><p><style><br />
+a, a:link, a:visited { color:#000; text-decoration: none }<br />
+a { font-weight: inherit }<br />
+/* h3 {<br />
+    background-color: #333;<br />
+    text-align: center;<br />
+    font-family: serif;<br />
+} */<br />
+strong { font-weight: bold !important }<br />
+div.current pre { font-size:70% }<br />
+div.current div.pre50 pre { font-size:50% }<br />
+div.current div.pre60 pre { font-size:60% }<br />
+div.current div.pre70 pre { font-size:70% }<br />
+div.current div.pre80 pre { font-size:80% }<br />
+div.current div.pre90 pre { font-size:90% }<br />
+img[src^='http://favicon.'] { width: 1em }<br />
+pre { font-family: monospace; line-height: 1.5em }<br />
+</style></p><p></p>
+<!-- -->
+</div>
