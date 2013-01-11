@@ -67,7 +67,7 @@ sub add_bookmark {
 
     my $entry = Intern::Bookmark::Record::Entry->new_from_url($url);
     if (my $bookmark = $self->bookmark_on_entry($entry)) {
-        $bookmark->comment($args{comment});
+        $bookmark->update(comment => $args{comment});
         return $bookmark;
     } else {
         return Intern::Bookmark::Record::Bookmark->create(

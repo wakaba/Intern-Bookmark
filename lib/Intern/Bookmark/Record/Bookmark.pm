@@ -58,6 +58,11 @@ sub user {
     return Intern::Bookmark::Record::User->find_by_id($self->user_id);
 }
 
+sub update {
+    my $self = shift;
+    $self->{row}->update({@_});
+}
+
 sub delete {
     my $self = shift;
     $self->{row}->delete;
